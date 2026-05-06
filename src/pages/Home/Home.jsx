@@ -5,7 +5,7 @@ import Footer from "./Footer";
 import ArticleSection from "./ArticleSection";
 import homeData from "./HomeData";
 import { useTheme } from "../../context/ThemeContext";
-import ProblemsSection from "./Problems/ProblemsSection";
+import ProblemsSection from "../Problems/ProblemsSection";
 import "./Home.css";
 
 const topicGroupOrder = {

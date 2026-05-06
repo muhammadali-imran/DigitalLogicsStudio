@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import CircuitModal from "../../../components/CircuitModal";
+import CircuitModal from "../../components/CircuitModal";
 import "./Problems.css";
 
 const difficultyColor = {
