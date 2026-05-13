@@ -1,61 +1,92 @@
 import React, {
   createContext,
-  useContext,
-  useState,
-  useEffect,
   useCallback,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
 import authService from "../services/authService";
 
-// FIX 5: AuthContext.jsx was not present in the uploaded codebase but is
-//         imported by index.js (<AuthProvider>) and indirectly used across
-//         auth pages and ProtectedRoute.  Without it every page that touches
-//         auth crashes at runtime.  This is the canonical implementation that
-//         matches all the authService calls already in the codebase.
-
 const AuthContext = createContext(null);
+
+const toSolvedProblemSet = (user) =>
+  new Set(
+    Array.isArray(user?.solvedProblems)
+      ? user.solvedProblems
+          .map((problemId) => Number(problemId))
+          .filter((problemId) => Number.isInteger(problemId))
+      : [],
+  );
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // true = still checking session
+  const [loading, setLoading] = useState(true);
+  const [solvedProblems, setSolvedProblems] = useState(new Set());
 
-  // ── Bootstrap: check if there is an existing session cookie ──────────────
+  const applyUserState = useCallback((nextUser) => {
+    setUser(nextUser || null);
+    setSolvedProblems(toSolvedProblemSet(nextUser));
+  }, []);
+
   useEffect(() => {
     const checkSession = async () => {
       try {
         const data = await authService.getCurrentUser();
-        setUser(data.user);
+        applyUserState(data.user);
       } catch {
-        // 401 → no active session, that is fine
-        setUser(null);
+        applyUserState(null);
       } finally {
         setLoading(false);
       }
     };
 
     checkSession();
-  }, []);
+  }, [applyUserState]);
 
-  // ── Auth actions ──────────────────────────────────────────────────────────
-  const login = useCallback(async (email, password) => {
-    const data = await authService.login({ email, password });
-    setUser(data.user);
-    return data;
-  }, []);
+  const login = useCallback(
+    async (email, password) => {
+      const data = await authService.login({ email, password });
+      applyUserState(data.user);
+      return data;
+    },
+    [applyUserState],
+  );
 
-  const register = useCallback(async (name, email, password) => {
-    const data = await authService.register({ name, email, password });
-    setUser(data.user);
-    return data;
-  }, []);
+  const register = useCallback(
+    async (name, email, password) => {
+      const data = await authService.register({ name, email, password });
+      applyUserState(data.user);
+      return data;
+    },
+    [applyUserState],
+  );
 
   const logout = useCallback(async () => {
     try {
       await authService.logout();
     } finally {
-      setUser(null);
+      applyUserState(null);
     }
-  }, []);
+  }, [applyUserState]);
+
+  const hasSolvedProblem = useCallback(
+    (problemId) => {
+      const normalizedProblemId = Number(problemId);
+      return Number.isInteger(normalizedProblemId) && solvedProblems.has(normalizedProblemId);
+    },
+    [solvedProblems],
+  );
+
+  const markProblemSolved = useCallback(
+    async (problemId) => {
+      const data = await authService.markProblemSolved(problemId);
+      if (data?.user) {
+        applyUserState(data.user);
+      }
+      return data;
+    },
+    [applyUserState],
+  );
 
   const value = {
     user,
@@ -64,6 +95,9 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
+    solvedProblems,
+    markProblemSolved,
+    hasSolvedProblem,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
