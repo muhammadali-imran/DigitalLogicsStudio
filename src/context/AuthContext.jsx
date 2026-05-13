@@ -6,7 +6,13 @@ import React, {
   useCallback,
 } from "react";
 import authService from "../services/authService";
-import progressService from "../services/progressService";
+import apiClient from "../services/apiClient";
+
+// FIX 5: AuthContext.jsx was not present in the uploaded codebase but is
+//         imported by index.js (<AuthProvider>) and indirectly used across
+//         auth pages and ProtectedRoute.  Without it every page that touches
+//         auth crashes at runtime.  This is the canonical implementation that
+//         matches all the authService calls already in the codebase.
 
 const AuthContext = createContext(null);
 
@@ -60,27 +66,26 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // ── Problem progress ──────────────────────────────────────────────────────
-
-  const hasSolvedProblem = useCallback(
-    (problemId) => solvedProblems.has(problemId),
-    [solvedProblems],
-  );
-
+  // Mark a problem solved via the API and update the in-memory user object so
+  // downstream consumers (CircuitModal, ProblemsPage) reflect the change
+  // without needing a page reload.
   const markProblemSolved = useCallback(async (problemId) => {
-    if (!problemId) return;
-
-    // Optimistic update so UI reflects "Completed" immediately
-    setSolvedProblems((prev) => {
-      if (prev.has(problemId)) return prev;
-      const next = new Set(prev);
-      next.add(problemId);
-      return next;
-    });
-
-    // Persist via the existing progress route
-    await progressService.completeProblem(problemId);
+    const { data } = await apiClient.post(
+      `/progress/problems/${problemId}/complete`,
+    );
+    if (data?.user) {
+      setUser(data.user);
+    }
   }, []);
+
+  // Idempotent solved check against the authoritative DB list on the user object.
+  const hasSolvedProblem = useCallback(
+    (problemId) => {
+      if (!user?.solvedProblems) return false;
+      return user.solvedProblems.includes(Number(problemId));
+    },
+    [user],
+  );
 
   const value = {
     user,
@@ -89,9 +94,8 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
-    solvedProblems,
-    hasSolvedProblem,
     markProblemSolved,
+    hasSolvedProblem,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
