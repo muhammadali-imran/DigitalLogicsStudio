@@ -226,6 +226,28 @@ export default function ProblemsPage() {
   const { theme, toggle: toggleTheme } = useTheme();
   const [activeLibraryItem, setActiveLibraryItem] = React.useState("Library");
   const bannerRef = React.useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = React.useState(false);
+  const [canScrollRight, setCanScrollRight] = React.useState(true);
+
+  const updateScrollButtons = React.useCallback(() => {
+    const el = bannerRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 2);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 2);
+  }, []);
+
+  React.useEffect(() => {
+    const el = bannerRef.current;
+    if (!el) return;
+    updateScrollButtons();
+    el.addEventListener("scroll", updateScrollButtons, { passive: true });
+    const ro = new ResizeObserver(updateScrollButtons);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener("scroll", updateScrollButtons);
+      ro.disconnect();
+    };
+  }, [updateScrollButtons]);
 
   const scrollBanner = (direction) => {
     if (!bannerRef.current) return;
@@ -414,14 +436,16 @@ export default function ProblemsPage() {
 
         <section className="problems-center">
           <div className="problems-banner-slider">
-            <button
-              type="button"
-              className="banner-slider-arrow banner-slider-arrow-left"
-              onClick={() => scrollBanner(-1)}
-              aria-label="Scroll left"
-            >
-              <ChevronLeft size={20} />
-            </button>
+            {canScrollLeft && (
+              <button
+                type="button"
+                className="banner-slider-arrow banner-slider-arrow-left"
+                onClick={() => scrollBanner(-1)}
+                aria-label="Scroll left"
+              >
+                <ChevronLeft size={20} />
+              </button>
+            )}
 
             <div className="problems-banner-row" ref={bannerRef}>
               {problemBannerCards.map((card) => (
@@ -437,14 +461,16 @@ export default function ProblemsPage() {
               ))}
             </div>
 
-            <button
-              type="button"
-              className="banner-slider-arrow banner-slider-arrow-right"
-              onClick={() => scrollBanner(1)}
-              aria-label="Scroll right"
-            >
-              <ChevronRight size={20} />
-            </button>
+            {canScrollRight && (
+              <button
+                type="button"
+                className="banner-slider-arrow banner-slider-arrow-right"
+                onClick={() => scrollBanner(1)}
+                aria-label="Scroll right"
+              >
+                <ChevronRight size={20} />
+              </button>
+            )}
           </div>
 
           <div className="problems-filter-chip-row">
