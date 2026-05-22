@@ -49,6 +49,8 @@ export default function NumberSystemCalculator() {
 
   const toDecimal = (value, base) => parseInt(value.toUpperCase(), base);
   const fromDecimal = (value, base) => value.toString(base).toUpperCase();
+  const trimLeadingZeros = (value) =>
+    value.toString().replace(/^0+/, "") || "0";
 
   // Binary-specific conversions (fixed 8-bit with proper extension/truncation)
   const decimalToBinaryOutput = useCallback(
@@ -174,28 +176,57 @@ export default function NumberSystemCalculator() {
         const d2 = toDecimal(digits2[i], base);
         let carry = 0;
         let product = Array(i).fill("0");
+        const digitSteps = [];
 
         for (let j = 0; j < digits1.length || carry > 0; j++) {
           const d1 = j < digits1.length ? toDecimal(digits1[j], base) : 0;
           const mult = d1 * d2 + carry;
           const digit = mult % base;
-          carry = Math.floor(mult / base);
-          product.push(fromDecimal(digit, base));
+          const nextCarry = Math.floor(mult / base);
+          const resultDigit = fromDecimal(digit, base);
+          digitSteps.push({
+            position: j,
+            digit1: digits1[j] || "0",
+            digit2: digits2[i],
+            carry,
+            product: mult,
+            resultDigit,
+            newCarry: nextCarry,
+          });
+          carry = nextCarry;
+          product.push(resultDigit);
         }
-        partialProducts.push(product.reverse().join(""));
+
+        const shiftedProduct = product.reverse().join("");
+        partialProducts.push(shiftedProduct);
+        stepData.push({
+          multiplierDigit: digits2[i],
+          shift: i,
+          partial: shiftedProduct,
+          digitSteps,
+        });
       }
 
       let finalResult = "0";
+      const additionSteps = [];
       for (const partial of partialProducts) {
-        finalResult = performAddition(finalResult, partial, base).result;
+        const before = finalResult;
+        const addition = performAddition(finalResult, partial, base);
+        finalResult = addition.result;
+        additionSteps.push({
+          addend: partial,
+          runningTotalBefore: before,
+          runningTotalAfter: finalResult,
+        });
       }
 
       const decimalValue = toDecimal(num1Str, base) * toDecimal(num2Str, base);
 
       return {
-        result: finalResult.replace(/^0+/, "") || "0",
+        result: trimLeadingZeros(finalResult),
         partialProducts,
         steps: stepData,
+        additionSteps,
         decimal: decimalValue,
       };
     },
@@ -213,7 +244,31 @@ export default function NumberSystemCalculator() {
     const quotientDec = Math.trunc(dec1 / dec2);
     const remainderDec = dec1 % dec2;
 
-    const quotientStr = fromDecimal(Math.abs(quotientDec), base);
+    let remainder = 0;
+    const quotientDigits = [];
+    const longDivisionSteps = [];
+
+    num1Str.split("").forEach((digitChar, index) => {
+      const broughtDown = toDecimal(digitChar, base);
+      const current = remainder * base + broughtDown;
+      const quotientDigit = Math.floor(current / dec2);
+      const product = quotientDigit * dec2;
+      const nextRemainder = current - product;
+      const quotientChar = fromDecimal(quotientDigit, base);
+
+      quotientDigits.push(quotientChar);
+      longDivisionSteps.push({
+        index,
+        broughtDown: digitChar,
+        current: fromDecimal(current, base),
+        quotientDigit: quotientChar,
+        product: fromDecimal(product, base),
+        remainder: fromDecimal(nextRemainder, base),
+      });
+      remainder = nextRemainder;
+    });
+
+    const quotientStr = trimLeadingZeros(quotientDigits.join(""));
     const signedQuotientStr = quotientDec < 0 ? "-" + quotientStr : quotientStr;
 
     const remainderStr = fromDecimal(Math.abs(remainderDec), base);
@@ -223,7 +278,13 @@ export default function NumberSystemCalculator() {
       decimal: quotientDec,
       remainder: remainderDec,
       remainderStr,
-      steps: [],
+      steps: longDivisionSteps,
+      longDivision: {
+        dividend: num1Str,
+        divisor: num2Str,
+        quotient: signedQuotientStr,
+        remainder: remainderStr,
+      },
     };
   }, []);
 
@@ -252,6 +313,8 @@ export default function NumberSystemCalculator() {
         if (padded1[0] === "1") num1 -= 1 << bits;
         if (padded2[0] === "1") num2 -= 1 << bits;
       } else {
+        num1 = parseInt(padded1.slice(1), 2);
+        num2 = parseInt(padded2.slice(1), 2);
         if (padded1[0] === "1") num1 = -num1;
         if (padded2[0] === "1") num2 = -num2;
       }
@@ -473,14 +536,166 @@ export default function NumberSystemCalculator() {
     );
   };
 
+  const renderSchoolRow = (value, label = "", tone = "") => {
+    const text = value.toString().toUpperCase();
+
+    return (
+      <div className={`school-row ${tone}`}>
+        <span className="school-row-label">{label}</span>
+        <span className="school-row-value">
+          {Array.from(text).map((ch, idx) => (
+            <span key={`${label}-${idx}-${ch}`} className="school-digit">
+              {ch === " " ? "\u00A0" : ch}
+            </span>
+          ))}
+        </span>
+      </div>
+    );
+  };
+
+  const renderCarrySchoolRow = (value, label = "carry") => {
+    const text = value.toString().toUpperCase();
+    const hasCarry = text.trim().length > 0;
+
+    return (
+      <div className={`school-row carry-school-row ${hasCarry ? "has-carry" : ""}`}>
+        <span className="school-row-label">{hasCarry ? label : ""}</span>
+        <span className="school-row-value">
+          {Array.from(text).map((ch, idx) => (
+            <span key={`carry-${idx}-${ch}`} className="school-digit">
+              {ch.trim() ? <span className="carry-bubble">{ch}</span> : "\u00A0"}
+            </span>
+          ))}
+        </span>
+      </div>
+    );
+  };
+
+  const renderMultiplicationWork = () => {
+    if (!result?.partialProducts?.length) return null;
+
+    const top = input1.toUpperCase();
+    const bottom = input2.toUpperCase();
+    const final = result.result.toUpperCase();
+    const rows = result.partialProducts.map((partial) => partial.toUpperCase());
+    const width = Math.max(
+      top.length,
+      bottom.length + 1,
+      final.length,
+      ...rows.map((row) => row.length),
+    );
+    const carryRows = result.steps.map((step) => {
+      const carryCells = new Array(width).fill(" ");
+      step.digitSteps.forEach((digitStep) => {
+        if (!digitStep.newCarry) return;
+        const carryIndex = width - 1 - (digitStep.position + step.shift + 1);
+        if (carryIndex >= 0 && carryIndex < width) {
+          carryCells[carryIndex] = fromDecimal(digitStep.newCarry, getBase(numberSystem));
+        }
+      });
+      return carryCells.join("");
+    });
+
+    return (
+      <div className="calculation-visual">
+        <div className="visual-work school-work">
+          {renderSchoolRow(top.padStart(width, " "))}
+          {renderSchoolRow(("×" + bottom).padStart(width, " "))}
+          <div className="school-separator" />
+          {rows.map((partial, idx) => (
+            <div className="partial-work-group" key={`partial-${idx}`}>
+              {renderCarrySchoolRow(carryRows[idx])}
+              {renderSchoolRow(
+                partial.padStart(width, " "),
+                rows.length > 1 ? `p${idx + 1}` : "",
+                "partial",
+              )}
+            </div>
+          ))}
+          {rows.length > 1 && <div className="school-separator soft" />}
+          {renderSchoolRow(final.padStart(width, " "), "=", "total")}
+          <div className="school-notes">
+            {result.steps.map((step, idx) => (
+              <p key={`mult-note-${idx}`}>
+                <span className="highlight">
+                  {step.multiplierDigit} row:
+                </span>{" "}
+                multiply every digit by {step.multiplierDigit}
+                {step.shift > 0
+                  ? `, then shift ${step.shift} place${step.shift > 1 ? "s" : ""} left`
+                  : ""}
+                .
+              </p>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderDivisionWork = () => {
+    if (!result?.longDivision) return null;
+
+    const { dividend, divisor, quotient, remainder } = result.longDivision;
+
+    return (
+      <div className="calculation-visual">
+        <div className="visual-work long-division-work">
+          <div className="division-equation">
+            <span className="division-quotient">{quotient}</span>
+            <span className="division-divisor">{divisor}</span>
+            <span className="division-bracket">{dividend}</span>
+          </div>
+          <div className="division-steps">
+            {steps.map((step) => (
+              <div className="division-step" key={`division-${step.index}`}>
+                <span className="division-step-index">{step.index + 1}</span>
+                <div className="division-cut-panel" aria-label="Long division subtraction">
+                  <span className="division-cut-current">{step.current}</span>
+                  <span className="division-cut-product">
+                    <span className="division-cut-operator">−</span>
+                    <span className="division-cut-number">{step.product}</span>
+                  </span>
+                  <span className="division-cut-line" />
+                  <span className="division-cut-remainder">{step.remainder}</span>
+                </div>
+                <span>
+                  Bring down <strong>{step.broughtDown}</strong>:{" "}
+                  <strong>{step.current}</strong> ÷ {divisor} gives{" "}
+                  <strong>{step.quotientDigit}</strong>.
+                </span>
+                <span>
+                  Subtract {step.product}; remainder becomes{" "}
+                  <strong>{step.remainder}</strong>.
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="division-remainder">
+            Remainder: <strong>{remainder}</strong>
+          </p>
+        </div>
+      </div>
+    );
+  };
+
   const renderVisualization = () => {
     if (!result || !operation) return null;
+
+    if (numberSystem !== "binary" && operation === "multiplication") {
+      return renderMultiplicationWork();
+    }
+
+    if (numberSystem !== "binary" && operation === "division") {
+      return renderDivisionWork();
+    }
 
     const digits = buildVisualDigits();
     if (!digits) return null;
 
-    const { paddedTop, paddedBottom, paddedRes, carryRow } = digits;
+    const { paddedTop, paddedBottom, paddedRes, carryRow, borrowRow } = digits;
     const opSymbol = getOperatorSymbol();
+    const topHelperRow = operation === "subtraction" ? borrowRow : carryRow;
 
     return (
       <div className="calculation-visual">
@@ -490,7 +705,7 @@ export default function NumberSystemCalculator() {
               className={`digit-row ${operation === "addition" ? "carry-row" : "borrow-row"}`}
             >
               <div className="operator-space" />
-              {carryRow.map((c, idx) => (
+              {topHelperRow.map((c, idx) => (
                 <div key={`c-${idx}`} className="digit-cell">
                   {c && operation === "addition" && (
                     <span className="carry-indicator">1</span>

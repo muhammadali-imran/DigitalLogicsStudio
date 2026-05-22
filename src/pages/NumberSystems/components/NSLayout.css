@@ -1523,6 +1523,293 @@
   border-color: rgba(34, 211, 238, 0.2);
 }
 
+.ns-layout .school-work {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-width: min(100%, 18rem);
+}
+
+.ns-layout .school-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  font-family: var(--ns-font-mono);
+  font-size: clamp(1.15rem, 3vw, 1.55rem);
+  font-weight: 700;
+  color: var(--ns-text-hi);
+}
+
+.ns-layout .school-row-label {
+  width: 2.4rem;
+  flex: 0 0 2.4rem;
+  color: var(--ns-cyan);
+  font-size: 0.78rem;
+  text-align: right;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ns-layout .school-row-value {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.35rem 0.45rem;
+  border-radius: var(--ns-radius-sm);
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.ns-layout .school-digit {
+  width: 1.25ch;
+  text-align: center;
+}
+
+.ns-layout .partial-work-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+
+.ns-layout .carry-school-row {
+  min-height: 1.4rem;
+  margin-bottom: -0.15rem;
+  font-size: clamp(0.78rem, 2vw, 0.95rem);
+}
+
+.ns-layout .carry-school-row .school-row-value {
+  padding-block: 0.05rem;
+  background: transparent;
+  border-color: transparent;
+}
+
+.ns-layout .carry-school-row .school-row-label {
+  color: var(--ns-amber);
+  font-size: 0.62rem;
+}
+
+.ns-layout .carry-school-row:not(.has-carry) {
+  opacity: 0;
+}
+
+.ns-layout .carry-bubble {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.2rem;
+  height: 1.2rem;
+  padding: 0 0.22rem;
+  border-radius: 999px;
+  background: var(--ns-amber-soft);
+  border: 1px solid rgba(251, 191, 36, 0.34);
+  color: var(--ns-amber);
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.16);
+}
+
+.ns-layout .school-row.partial .school-row-value {
+  color: var(--ns-cyan);
+  border-color: rgba(34, 211, 238, 0.22);
+}
+
+.ns-layout .school-row.total .school-row-value {
+  color: var(--ns-teal-400);
+  border-color: var(--ns-teal-border-hi);
+  background: var(--ns-surface-2);
+  box-shadow: 0 0 14px var(--ns-teal-glow);
+}
+
+.ns-layout .school-separator {
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--ns-teal-400) 18%,
+    var(--ns-teal-400) 82%,
+    transparent
+  );
+  margin: 0.2rem 0;
+  box-shadow: 0 0 10px var(--ns-teal-glow);
+}
+
+.ns-layout .school-separator.soft {
+  height: 1px;
+  opacity: 0.65;
+}
+
+.ns-layout .school-notes {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--ns-border-sep);
+  color: var(--ns-text-muted);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.ns-layout .school-notes p {
+  margin: 0.2rem 0;
+}
+
+.ns-layout .long-division-work {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  width: min(100%, 44rem);
+}
+
+.ns-layout .division-equation {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0;
+  overflow-x: auto;
+  padding: 0.25rem 0 0.7rem;
+  font-family: var(--ns-font-mono);
+  font-size: clamp(1.2rem, 3vw, 1.65rem);
+  font-weight: 700;
+}
+
+.ns-layout .division-quotient {
+  color: var(--ns-teal-400);
+  padding: 0 0.75rem 0.25rem 0;
+  border-bottom: 2px solid var(--ns-teal-400);
+}
+
+.ns-layout .division-divisor {
+  color: var(--ns-cyan);
+  padding: 0.35rem 0.75rem 0.25rem 0;
+}
+
+.ns-layout .division-bracket {
+  min-width: 4ch;
+  padding: 0.35rem 0.75rem 0.25rem;
+  color: var(--ns-text-hi);
+  border-top: 2px solid var(--ns-teal-400);
+  border-left: 2px solid var(--ns-teal-400);
+  border-top-left-radius: 0.65rem;
+}
+
+.ns-layout .division-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.ns-layout .division-step {
+  display: grid;
+  grid-template-columns: minmax(8.5rem, 0.42fr) minmax(0, 1fr);
+  gap: 0.25rem;
+  position: relative;
+  padding: 0.85rem 1rem 0.85rem 3.1rem;
+  border: 1px solid var(--ns-border);
+  border-radius: var(--ns-radius-md);
+  background:
+    linear-gradient(135deg, rgba(34, 211, 238, 0.08), transparent 55%),
+    rgba(15, 23, 42, 0.36);
+  color: var(--ns-text-base);
+  line-height: 1.5;
+}
+
+.ns-layout .division-step > span:not(.division-step-index) {
+  grid-column: 2;
+}
+
+.ns-layout .division-step-index {
+  position: absolute;
+  left: 0.9rem;
+  top: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  border-radius: 999px;
+  background: var(--ns-cyan-soft);
+  border: 1px solid rgba(34, 211, 238, 0.24);
+  color: var(--ns-cyan);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.ns-layout .division-cut-panel {
+  grid-row: 1 / span 2;
+  grid-column: 1;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 0.08rem;
+  width: fit-content;
+  min-width: 6.6rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: var(--ns-radius-sm);
+  background: rgba(2, 6, 23, 0.28);
+  border: 1px solid rgba(148, 163, 184, 0.13);
+  font-family: var(--ns-font-mono);
+  font-weight: 800;
+}
+
+.ns-layout .division-cut-current,
+.ns-layout .division-cut-product,
+.ns-layout .division-cut-remainder {
+  display: flex;
+  justify-content: flex-end;
+  min-height: 1.35rem;
+}
+
+.ns-layout .division-cut-current {
+  color: var(--ns-text-hi);
+}
+
+.ns-layout .division-cut-product {
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--ns-rose);
+}
+
+.ns-layout .division-cut-operator {
+  color: var(--ns-rose);
+}
+
+.ns-layout .division-cut-number {
+  position: relative;
+  display: inline-block;
+}
+
+.ns-layout .division-cut-number::after {
+  content: "";
+  position: absolute;
+  left: -0.08rem;
+  right: -0.08rem;
+  top: 50%;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--ns-rose), transparent);
+  transform: rotate(-9deg);
+  box-shadow: 0 0 8px rgba(251, 113, 133, 0.4);
+}
+
+.ns-layout .division-cut-line {
+  display: block;
+  height: 2px;
+  margin: 0.08rem 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--ns-cyan), var(--ns-teal-400));
+  box-shadow: 0 0 8px var(--ns-teal-glow);
+}
+
+.ns-layout .division-cut-remainder {
+  color: var(--ns-teal-400);
+}
+
+.ns-layout .division-remainder {
+  align-self: flex-end;
+  margin: 0;
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--ns-radius-sm);
+  background: var(--ns-amber-soft);
+  border: 1px solid rgba(251, 191, 36, 0.22);
+  color: var(--ns-text-hi);
+}
+
 /* ── Step Detail Blocks ────────────────────────────────────── */
 .ns-layout .step-detail {
   margin: 1.25rem 0;
@@ -2064,6 +2351,21 @@
   color: var(--ns-text-muted);
   line-height: 1.65;
   overflow-wrap: anywhere;
+}
+
+.ns-layout .math-inline {
+  display: inline-block;
+  color: var(--ns-text-hi);
+  font-family: var(--ns-font-mono);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.ns-layout .math-inline sup {
+  font-size: 0.68em;
+  line-height: 0;
+  vertical-align: super;
+  color: var(--ns-amber);
 }
 
 .ns-layout .binary-concept-grid {
@@ -2624,6 +2926,36 @@
   }
   .ns-layout .visual-work {
     padding: 1.25rem;
+  }
+
+  .ns-layout .school-work,
+  .ns-layout .long-division-work {
+    width: 100%;
+  }
+
+  .ns-layout .school-row {
+    gap: 0.45rem;
+  }
+
+  .ns-layout .school-row-label {
+    width: 1.8rem;
+    flex-basis: 1.8rem;
+    font-size: 0.68rem;
+  }
+
+  .ns-layout .division-step {
+    grid-template-columns: 1fr;
+    padding: 0.85rem 0.85rem 0.85rem 2.7rem;
+  }
+
+  .ns-layout .division-step > span:not(.division-step-index),
+  .ns-layout .division-cut-panel {
+    grid-column: 1;
+  }
+
+  .ns-layout .division-cut-panel {
+    grid-row: auto;
+    width: 100%;
   }
 
   .ns-layout .conversion-grid,
