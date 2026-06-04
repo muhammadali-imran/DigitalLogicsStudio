@@ -5038,7 +5038,8 @@ select:focus-visible {
   box-shadow: var(--shadow-xl);
   backdrop-filter: blur(10px);
   position: relative;
-  overflow: hidden;
+  /* overflow:visible so .kmap-table-scroll can horizontally scroll inside */
+  overflow: visible;
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -5057,6 +5058,9 @@ select:focus-visible {
   );
   background-size: 200% 100%;
   animation: shimmer 3s linear infinite;
+  /* Clip only the shimmer bar, not the card contents */
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  overflow: hidden;
 }
 
 @keyframes shimmer {
@@ -5313,24 +5317,36 @@ select:focus-visible {
 /* K-Map Grid Styles */
 .kmap-wrapper {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   margin-top: var(--spacing-xl);
   padding: var(--spacing-xl);
   animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
 }
 
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.85);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+/* Scroll container — sits between .kmap-wrapper and .kmap-grid-container */
+.kmap-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Show scrollbar hint on mobile */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(96, 165, 250, 0.4) transparent;
+  /* Center the table when it's smaller than the container */
+  display: flex;
+  justify-content: center;
 }
 
+.kmap-table-scroll::-webkit-scrollbar {
+  height: 5px;
+}
+
+.kmap-table-scroll::-webkit-scrollbar-thumb {
+  background: rgba(96, 165, 250, 0.35);
+  border-radius: 99px;
+}
+
+/* Keep grid-container inline-block so it shrinks to table size */
 .kmap-grid-container {
   display: inline-block;
   background: rgba(10, 14, 26, 0.6);
@@ -5343,6 +5359,20 @@ select:focus-visible {
     inset 0 0 60px rgba(96, 165, 250, 0.05);
   position: relative;
   backdrop-filter: blur(10px);
+  /* Prevent the container itself from squishing */
+  flex-shrink: 0;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .kmap-grid-container::after {
@@ -5890,8 +5920,9 @@ select:focus-visible {
   .kmap-wrapper {
     padding: var(--spacing-sm);
     margin-top: var(--spacing-md);
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  }
+
+  .kmap-table-scroll {
     justify-content: flex-start;
   }
 
@@ -5952,6 +5983,10 @@ select:focus-visible {
 
   .kmap-wrapper {
     padding: 4px;
+  }
+
+  .kmap-table-scroll {
+    justify-content: flex-start;
   }
 
   .kmap-grid-container {
@@ -6929,14 +6964,24 @@ select:focus-visible {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  /* Subtle hint that it's scrollable on mobile */
   scrollbar-width: thin;
+  scrollbar-color: rgba(96, 165, 250, 0.4) transparent;
+  /* Add bottom padding so scrollbar doesn't overlap content */
+  padding-bottom: 4px;
+}
+
+.kmap-truth-table-wrap::-webkit-scrollbar {
+  height: 5px;
+}
+
+.kmap-truth-table-wrap::-webkit-scrollbar-thumb {
+  background: rgba(96, 165, 250, 0.35);
+  border-radius: 99px;
 }
 
 @media (max-width: 768px) {
   .kmap-truth-table-wrap {
     border-radius: var(--radius-md);
-    border: 1px solid var(--color-border);
   }
 
   .kmap-truth-table th,
@@ -7070,6 +7115,10 @@ select:focus-visible {
 
   .kmap-wrapper {
     padding: 2px;
+  }
+
+  .kmap-table-scroll {
+    justify-content: flex-start;
   }
 
   .kmap-expression {

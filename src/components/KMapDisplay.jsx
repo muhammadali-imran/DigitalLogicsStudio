@@ -73,33 +73,35 @@ export const KMapDisplay = ({
             </h2>
 
             <div className="kmap-wrapper">
-                <div className="kmap-grid-container">
-                    <table className="kmap-table">
-                        <thead>
-                            <tr>
-                                <th className="kmap-corner">
-                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                                        {numVariables === 2
-                                            ? variables[0]
-                                            : variables.slice(0, 2).join('')} \ {numVariables === 2
-                                                ? variables[1]
-                                                : (numVariables === 3 ? variables[2] : variables.slice(2).join(''))}
-                                    </div>
-                                </th>
-                                {getColumnLabels().map((label, idx) => (
-                                    <th key={idx} className="kmap-header-cell">{label}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {grid.map((row, rowIdx) => (
-                                <tr key={rowIdx}>
-                                    <td className="kmap-row-header">{getRowLabels()[rowIdx]}</td>
-                                    {row.map((cell, colIdx) => renderCell(cell, rowIdx, colIdx))}
+                <div className="kmap-table-scroll">
+                    <div className="kmap-grid-container">
+                        <table className="kmap-table">
+                            <thead>
+                                <tr>
+                                    <th className="kmap-corner">
+                                        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                            {numVariables === 2
+                                                ? variables[0]
+                                                : variables.slice(0, 2).join('')} \ {numVariables === 2
+                                                    ? variables[1]
+                                                    : (numVariables === 3 ? variables[2] : variables.slice(2).join(''))}
+                                        </div>
+                                    </th>
+                                    {getColumnLabels().map((label, idx) => (
+                                        <th key={idx} className="kmap-header-cell">{label}</th>
+                                    ))}
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {grid.map((row, rowIdx) => (
+                                    <tr key={rowIdx}>
+                                        <td className="kmap-row-header">{getRowLabels()[rowIdx]}</td>
+                                        {row.map((cell, colIdx) => renderCell(cell, rowIdx, colIdx))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 {showGroupingGuide && groups.length > 0 && (
