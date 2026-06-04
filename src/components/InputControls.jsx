@@ -41,7 +41,7 @@ export const InputControls = ({
 
                 <div className="kmap-control-group">
                     <label className="kmap-label">Variable Names</label>
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div className="kmap-var-inputs">
                         {variables.map((variable, index) => (
                             <input
                                 key={index}
@@ -98,7 +98,7 @@ export const InputControls = ({
                     </p>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--spacing-md)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--spacing-md)' }} className="kmap-btn-row">
                     <button
                         className="kmap-btn kmap-btn-primary"
                         onClick={onGenerate}
