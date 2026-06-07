@@ -371,6 +371,23 @@
   border-radius: 1.5rem;
 }
 
+/* On mobile the sidebar becomes a fixed drawer — backdrop-filter on a
+   position:fixed element blurs the entire page behind it.
+   Override with a fully-opaque background and no blur. */
+@media (max-width: 920px) {
+  .problems-sidebar {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: #0a1020 !important;
+  }
+
+  .problems-page.theme-light .problems-sidebar {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: #ffffff !important;
+  }
+}
+
 .problems-sidebar {
   padding: 1.5rem 1.2rem;
   display: flex;

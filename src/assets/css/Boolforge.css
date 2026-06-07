@@ -305,3 +305,47 @@ body:has(.boolforge-page) {
 .boolforge-main--fullscreen .container.circuit-maker {
   height: 100vh;
 }
+
+/* ── Canvas overlay controls (Fit / Zoom — shown on mobile canvas) ───────── */
+.canvas-overlay-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 20;
+  pointer-events: auto;
+}
+
+.canvas-overlay-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1.5px solid var(--accent-primary, #00ff88);
+  background: rgba(10, 14, 26, 0.85);
+  color: var(--accent-primary, #00ff88);
+  font-size: 16px;
+  font-weight: 700;
+  font-family: monospace;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  transition: background 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.canvas-overlay-btn:active {
+  background: rgba(0, 255, 136, 0.2);
+  transform: scale(0.92);
+}
+
+/* Only show overlay controls on mobile (≤900px where sidebar is hidden) */
+@media (min-width: 901px) {
+  .canvas-overlay-controls {
+    display: none;
+  }
+}
