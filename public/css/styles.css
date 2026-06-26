@@ -4991,7 +4991,7 @@ select:focus-visible {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   min-width: 0;
   padding-left: 24px;
   padding-right: 24px;
@@ -5064,19 +5064,35 @@ select:focus-visible {
   .kmap-sidebar {
     width: 300px;
   }
-  .kmap-canvas {
-    padding-right: 16px;
+   .kmap-canvas {
+    padding-right: 16px;     
+    padding-left: 16px;
   }
 }
 
 /* Mobile: stack vertically, sidebar becomes top bar */
 @media (max-width: 768px) {
-.kmap-workspace {
+  .kmap-workspace {
     flex-direction: column;
     gap: 0;
     padding: 0 14px 32px;
     overflow-y: visible;
     height: auto;
+  }
+
+  .kmap-empty-state {
+    min-height: 240px;
+    padding: var(--spacing-xl) var(--spacing-md);
+    border-radius: var(--radius-lg);
+  }
+  .kmap-empty-icon {
+    font-size: 2.5rem;
+  }
+  .kmap-empty-title {
+    font-size: 1.1rem;
+  }
+  .kmap-empty-hint {
+    font-size: 0.85rem;
   }
 
   .kmap-sidebar {
@@ -5096,6 +5112,9 @@ select:focus-visible {
     border-left: none;
     border-top: 1px solid rgba(96,165,250,0.1);
     padding-top: 20px;
+    height: auto;
+    overflow-y: visible;
+    padding-right: 0; 
   }
 }
 
@@ -5135,29 +5154,12 @@ select:focus-visible {
   z-index: 1;
 }
 
-/* Header gradient block — wraps title + subtitle */
-/* .kmap-header-gradient {
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  text-align: center;
-  padding: 2.5rem 1.5rem 1.5rem;
-  margin-bottom: var(--spacing-xl);
-} */
-
-/* Content wrapper: constrain width on large screens */
 .kmap-content-wrapper {
   max-width: 900px;
   margin: 0 auto;
   width: 100%;
 }
 
-/* Header Styles */
-.kmap-header {
-  text-align: center;
-  margin-bottom: var(--spacing-3xl);
-  animation: slideDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
 
 @keyframes slideDown {
   from {
@@ -5259,6 +5261,10 @@ select:focus-visible {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
+  background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .kmap-section-title::before {
@@ -5333,7 +5339,7 @@ select:focus-visible {
 
 /* Grid Layouts */
 .kmap-controls-grid {
-  gap: var(--spacing-lg);
+  gap: var(--spacing-lg) var(--spacing-md); 
   margin-bottom: var(--spacing-lg);
   display: flex;
   justify-content: center;
@@ -5899,6 +5905,150 @@ select:focus-visible {
 .kmap-info-item:hover::before {
   color: var(--accent-secondary);
   transform: scale(1.3);
+}
+
+/* ── Toggle switch (grouping guide) ──────────────────────────── */
+.kmap-toggle {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+  margin-top: 6px;
+}
+
+.kmap-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.kmap-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(96,165,250,0.15);
+  border: 2px solid var(--color-border);
+  border-radius: 34px;
+  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.kmap-toggle-slider::before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 2px;
+  background: var(--accent-secondary);
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 0 8px rgba(0,255,136,0.4);
+}
+
+.kmap-toggle input:checked + .kmap-toggle-slider {
+  background: rgba(0,255,136,0.25);
+  border-color: var(--accent-primary);
+}
+
+.kmap-toggle input:checked + .kmap-toggle-slider::before {
+  transform: translateX(22px);
+  background: var(--accent-primary);
+}
+
+.kmap-toggle:hover .kmap-toggle-slider {
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 12px rgba(0,255,136,0.3);
+}
+
+/* ── Refined control layout ─────────────────────────────────── */
+.kmap-control-row {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.kmap-control-row .kmap-control-group {
+  flex: 1;
+}
+
+@media (max-width: 540px) {
+  .kmap-control-row {
+    flex-direction: column;
+  }
+}
+
+/* ── Section divider between standard controls and experiment ── */
+.kmap-section-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: var(--spacing-md) 0 var(--spacing-sm);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.kmap-section-divider::before,
+.kmap-section-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-border) 20%,
+    var(--color-border) 80%,
+    transparent
+  );
+}
+
+/* ── Circuit experiment button – matches existing button family ── */
+.kmap-btn-circuit {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  border: none;
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  margin-top: var(--spacing-sm);
+}
+
+.kmap-btn-circuit:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+}
+
+.kmap-btn-circuit:active {
+  transform: translateY(-1px);
+}
+
+/* Keep the ripple effect from .kmap-btn::before – reuse it */
+.kmap-btn-circuit::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+  overflow: hidden;
+}
+
+.kmap-btn-circuit:active::before {
+  width: 300px;
+  height: 300px;
 }
 
 /* ─── Truth Table ─────────────────────────────────────────────────────────── */
@@ -7167,48 +7317,6 @@ select:focus-visible {
     max-width: 100%;
   }
 }
-
-/* @media (max-width: 768px) {
-  .kmap-container {
-    padding: 20px 14px;
-  }
-
-  .kmap-header-gradient {
-    padding: 1.5rem 1rem 1rem;
-    margin-bottom: var(--spacing-lg);
-  }
-
-  .kmap-main-title {
-    font-size: 1.75rem;
-    letter-spacing: -0.5px;
-    margin-bottom: 0.5rem;
-  }
-
-  .kmap-subtitle {
-    font-size: 0.85rem;
-    margin-bottom: 1.5rem; 
-    letter-spacing: 0.5px;
-  }
-}
-
-@media (max-width: 480px) {
-  .kmap-container {
-    padding: 12px 10px;
-  }
-
-  .kmap-header-gradient {
-    padding: 1rem 0.5rem 0.5rem;
-  }
-
-  .kmap-main-title {
-    font-size: 1.45rem;
-  }
-
-  .kmap-subtitle {
-    font-size: 0.78rem;
-    letter-spacing: 0;
-  }
-} */
 
 /* ─── Grouping guide: full fixes ──────────────────────────────── */
 .kmap-grouping-guide .kmap-guide-controls {

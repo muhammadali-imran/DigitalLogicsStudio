@@ -98,6 +98,10 @@ const KMapGenerator = () => {
                         }}
                         onExample={handleExample}
                         onReset={handleReset}
+                        showGroupingGuide={showGroupingGuide}
+                        onToggleGroupingGuide={() => setShowGroupingGuide(!showGroupingGuide)}
+                        expression={expression}
+                        onExperiment={() => setShowCircuitModal(true)}  
                     />
                 </div>
             </aside>
@@ -136,21 +140,6 @@ const KMapGenerator = () => {
                     showGroupingGuide={showGroupingGuide}
                     onToggleGuide={() => setShowGroupingGuide(!showGroupingGuide)}
                     />
-
-                    {/* Circuit Experiment Button */}
-                    <div className="kmap-card">
-                        <button
-                            className="kmap-btn kmap-btn-primary kmap-btn-full"
-                            onClick={() => setShowCircuitModal(true)}
-                            style={{
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                            fontSize: '1.05rem',
-                            padding: 'var(--spacing-md) var(--spacing-lg)'
-                            }}
-                        >
-                            🔌 Experiment with Circuit
-                        </button>
-                    </div>
 
                     {showGroupingGuide && (
                     <GroupingGuide
