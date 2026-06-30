@@ -81,6 +81,21 @@ const leftNavSections = [
         },
       },
       {
+        label: "Sequential Arena",
+        icon: Sparkles,
+        topicSlug: "sequential-circuits",
+        panel: {
+          description: "Latches, flip-flops, state diagrams and sequential circuit design.",
+          links: [
+            { label: "Sequential Problems", action: "navigate", value: "/problems/sequential-circuits" },
+            { label: "Latches", action: "navigate", value: "/sequential/latches" },
+            { label: "Flip-Flops", action: "navigate", value: "/sequential/flip-flops" },
+            { label: "State Diagrams", action: "navigate", value: "/sequential/state-diagram" },
+            { label: "Timing Diagrams", action: "navigate", value: "/timing-diagrams" },
+          ],
+        },
+      },
+      {
         label: "Number Arena",
         icon: Binary,
         topicSlug: "number-systems",
@@ -276,7 +291,7 @@ const problemTopicLandingMap = {
     ],
   },
   "flip-flops": {
-    group: "Flip Flops",
+    group: "Sequential Circuits",
     title: "Flip-Flop Problems",
     description:
       "Review SR, JK, D, and T flip-flop truth tables, excitation behavior, and exam-style practice questions.",
@@ -287,28 +302,6 @@ const problemTopicLandingMap = {
         to: "/problems/sequential-circuits",
         label: "Sequential circuit problems",
       },
-    ],
-  },
-  "combinational-circuits": {
-    group: "Combinational Circuits",
-    title: "Combinational Circuit Problems",
-    description:
-      "Practice designing and analyzing combinational circuits like encoders, decoders, multiplexers, demultiplexers, and logic gates.",
-    links: [
-      { to: "/boolforge", label: "Circuit Forge Lab" },
-      { to: "/encoder", label: "Encoder Studio" },
-      { to: "/decoder", label: "Decoder Studio" },
-    ],
-  },
-  "memory-systems": {
-    group: "Memory Systems",
-    title: "Memory System Problems",
-    description:
-      "Practice memory decoding, RAM array structure, ROM/PLA programming, and read/write cycle timing.",
-    links: [
-      { to: "/memory/basics", label: "Memory basics tutorial" },
-      { to: "/memory/programmable-logic-array", label: "PLA programming lab" },
-      { to: "/memory/random-access-memory", label: "RAM interface lab" },
     ],
   },
 };
@@ -533,6 +526,7 @@ export default function ProblemsPage() {
 
   const getActiveItem = () => {
     if (topicSlug === "k-map") return "K-Map Arena";
+    if (topicSlug === "sequential-circuits") return "Sequential Arena";
     if (topicSlug === "number-systems") return "Number Arena";
     if (!topicSlug) return "Problems Library";
     return "";
@@ -553,19 +547,14 @@ export default function ProblemsPage() {
   };
 
   const handleBannerCardClick = (card) => {
-    if (card.path) {
-      navigate(card.path);
-    } else if (card.topicSlug) {
-      navigate(`/problems/${card.topicSlug}`);
-    } else if (card.filterGroup) {
+    if (card.filterGroup) {
       setActiveGroup(card.filterGroup);
       setTopicFilter(card.filterGroup);
+      trackPracticeEngagement("banner_card_click", {
+        card_title: card.title,
+        filter_group: card.filterGroup,
+      });
     }
-
-    trackPracticeEngagement("banner_card_click", {
-      card_title: card.title,
-      filter_group: card.filterGroup,
-    });
   };
 
   const startAutoscroll = React.useCallback((fromStart = true) => {
@@ -1304,11 +1293,14 @@ export default function ProblemsPage() {
                     const attempted = progress.status === "attempted";
                     const isSelected = selectedProblemId === problem.id;
 
+                    const isLocked = Boolean(problem.premium);
+
                     return (
                       <tr
                         key={problem.id}
-                        className={isSelected ? "is-selected" : ""}
+                        className={`${isSelected ? "is-selected" : ""} ${isLocked ? "is-locked" : ""}`}
                         onClick={() => {
+                          if (isLocked) return;
                           setSelectedProblemId(problem.id);
                           setActiveProblem(problem);
                           trackPracticeEngagement("open_problem", {
@@ -1316,6 +1308,11 @@ export default function ProblemsPage() {
                             problem_title: problem.title,
                             problem_topic: problem.topic,
                           });
+                          // Opening a problem for the first time marks it "attempted".
+                          // It will later be upgraded to "solved" via onSolved from the modal.
+                          if (!solved && !attempted) {
+                            handleRecordAttempt(problem);
+                          }
                         }}
                       >
                         <td>{problem.listId}</td>
@@ -1338,33 +1335,29 @@ export default function ProblemsPage() {
                           </span>
                         </td>
                         <td>
-                          {problem.premium ? (
-                            <Lock size={16} aria-label="Premium problem" />
-                          ) : (
-                            "Open"
-                          )}
+                          <span
+                            className={`access-pill ${isLocked ? "is-locked" : "is-open"}`}
+                          >
+                            {isLocked ? (
+                              <>
+                                <Lock size={14} aria-hidden="true" />
+                                Locked
+                              </>
+                            ) : (
+                              "Open"
+                            )}
+                          </span>
                         </td>
                         <td>
-                          <button
-                            type="button"
+                          <span
                             className={`status-chip ${solved ? "is-solved" : attempted ? "is-attempted" : ""}`}
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              if (solved) {
-                                handleSetProblemSolved(problem, false);
-                              } else if (attempted) {
-                                handleSetProblemSolved(problem, true);
-                              } else {
-                                handleRecordAttempt(problem);
-                              }
-                            }}
                           >
                             {solved
                               ? "Solved"
                               : attempted
                                 ? "Attempted"
-                                : "Start"}
-                          </button>
+                                : "Not started"}
+                          </span>
                         </td>
                         <td>
                           <div className="problem-tag-list">
