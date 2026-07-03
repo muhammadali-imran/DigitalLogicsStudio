@@ -1,18 +1,5 @@
 import axios from "axios";
-
-const LOCAL_API_URL = "http://localhost:5000/api";
-
-function resolveApiBaseUrl() {
-  const configured = process.env.REACT_APP_API_URL?.trim();
-  if (configured) return configured.replace(/\/+$/, "");
-  return LOCAL_API_URL;
-}
-
-function resolveAiBaseUrl() {
-  const configuredAi = process.env.REACT_APP_AI_URL?.trim();
-  if (configuredAi) return configuredAi.replace(/\/+$/, "");
-  return `${resolveApiBaseUrl()}/ai`;
-}
+import { resolveAiBaseUrl } from "../config/apiConfig";
 
 const aiClient = axios.create({
   baseURL: resolveAiBaseUrl(),
