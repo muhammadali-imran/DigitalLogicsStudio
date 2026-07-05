@@ -419,6 +419,12 @@ export const IC_META = {
   'ENC8':   { inputs: 8,  outputs: 3, inputLabels: ['I0','I1','I2','I3','I4','I5','I6','I7'],                 outputLabels: ['A','B','C']                               },
   'DEC4':   { inputs: 2,  outputs: 4, inputLabels: ['A','B'],                                                 outputLabels: ['Y0','Y1','Y2','Y3']                       },
   'DEC8':   { inputs: 3,  outputs: 8, inputLabels: ['A','B','C'],                                             outputLabels: ['Y0','Y1','Y2','Y3','Y4','Y5','Y6','Y7']  },
+  'HALF_ADDER':       { inputs: 2,  outputs: 2,  inputLabels: ['A','B'],                                      outputLabels: ['Σ','C']                   },
+  'FULL_ADDER':       { inputs: 3,  outputs: 2,  inputLabels: ['A','B','Cᵢ'],                                 outputLabels: ['Σ','Cₒ']                  },
+  'ADD4':             { inputs: 9,  outputs: 5,  inputLabels: ['A0','A1','A2','A3','B0','B1','B2','B3','Cᵢ'], outputLabels: ['S0','S1','S2','S3','Cₒ'] },
+  'CLADD4':           { inputs: 9,  outputs: 5,  inputLabels: ['A0','A1','A2','A3','B0','B1','B2','B3','Cᵢ'], outputLabels: ['S0','S1','S2','S3','Cₒ'] },
+  'HALF_SUBTRACTOR':  { inputs: 2,  outputs: 2,  inputLabels: ['A','B'],                                      outputLabels: ['D','Bₒ']                  },
+  'FULL_SUBTRACTOR':  { inputs: 3,  outputs: 2,  inputLabels: ['A','B','Bᵢ'],                                 outputLabels: ['D','Bₒ']                  },
 };
 
 export const IC_TYPES = new Set(Object.keys(IC_META));

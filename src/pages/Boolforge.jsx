@@ -37,6 +37,9 @@ const IC_HEIGHTS = {
   DEMUX2: 100, DEMUX4: 120, DEMUX8: 160,
   ENC4: 100, ENC8: 140,
   DEC4: 100, DEC8: 140,
+  HALF_ADDER: 80, FULL_ADDER: 100,
+  ADD4: 160, CLADD4: 160,
+  HALF_SUBTRACTOR: 80, FULL_SUBTRACTOR: 100,
 };
 
 function getICHeight(type) {
@@ -303,6 +306,72 @@ const Boolforge = ({
                   + ((inputs[1] ?? false) ? 2 : 0)
                   + ((inputs[0] ?? false) ? 1 : 0);
         return sel === outputIndex;
+      }
+
+    // ── Adders & Subtractors ────────────────────────────────────────────────
+      case 'HALF_ADDER': {
+        const a = inputs[0] ?? false;
+        const b = inputs[1] ?? false;
+        // outputIndex 0 = Sum (XOR), 1 = Carry (AND)
+        return outputIndex === 0 ? (a !== b) : (a && b);
+      }
+      case 'FULL_ADDER': {
+        const a = inputs[0] ?? false;
+        const b = inputs[1] ?? false;
+        const cin = inputs[2] ?? false;
+        // Sum = a XOR b XOR cin
+        const sum = (a !== b) !== cin;
+        // Cout = (a AND b) OR (cin AND (a XOR b))
+        const cout = (a && b) || (cin && (a !== b));
+        return outputIndex === 0 ? sum : cout;
+      }
+      case 'ADD4': {
+        // ripple-carry adder: A0..A3, B0..B3, Cin
+        const a = [inputs[0], inputs[1], inputs[2], inputs[3]].map(v => v ?? false);
+        const b = [inputs[4], inputs[5], inputs[6], inputs[7]].map(v => v ?? false);
+        let carry = inputs[8] ?? false;
+        const sums = [];
+        for (let i = 0; i < 4; i++) {
+          const xor_ab = a[i] !== b[i];
+          sums[i] = xor_ab !== carry;
+          carry = (a[i] && b[i]) || (carry && xor_ab);
+        }
+        // outputIndex 0-3 = S0..S3, 4 = Cout
+        return outputIndex === 4 ? carry : sums[outputIndex];
+      }
+      case 'CLADD4': {
+        // carry look-ahead: same pinout, same outputs
+        const a = [inputs[0], inputs[1], inputs[2], inputs[3]].map(v => v ?? false);
+        const b = [inputs[4], inputs[5], inputs[6], inputs[7]].map(v => v ?? false);
+        const cin = inputs[8] ?? false;
+
+        const g = a.map((ai, i) => ai && b[i]);   // generate
+        const p = a.map((ai, i) => ai !== b[i]);  // propagate
+
+        // carry look-ahead
+        const c = [cin]; // c[0] = cin, c[1..4] are carries into each stage
+        for (let i = 0; i < 4; i++) {
+          c[i+1] = g[i] || (p[i] && c[i]);
+        }
+        const sums = p.map((pi, i) => pi !== c[i]); // S_i = P_i XOR C_i
+        const cout = c[4];
+        return outputIndex === 4 ? cout : sums[outputIndex];
+      }
+      case 'HALF_SUBTRACTOR': {
+        const a = inputs[0] ?? false;
+        const b = inputs[1] ?? false;
+        // Diff = A XOR B, Borrow = !A AND B
+        return outputIndex === 0 ? (a !== b) : (!a && b);
+      }
+      case 'FULL_SUBTRACTOR': {
+        const a = inputs[0] ?? false;
+        const b = inputs[1] ?? false;
+        const bin = inputs[2] ?? false;
+        // Diff = A XOR B XOR Bin
+        const diff = (a !== b) !== bin;
+        // Bout = (!A AND B) OR (!A AND Bin) OR (B AND Bin)
+        const bout = (!a && b) || (!a && bin) || (b && bin);
+        return outputIndex === 0 ? diff : bout;
       }
 
       default:
@@ -1562,6 +1631,36 @@ const Boolforge = ({
             {[
               { type: "DEC4", label: "DEC 2:4" },
               { type: "DEC8", label: "DEC 3:8" },
+            ].map(({ type, label }) => (
+              <button key={type} className="gate-btn gate-btn--ic" onClick={() => addGate(type)}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="palette-section">
+          <div className="palette-section-title">Adders </div>
+          <div className="gate-palette">
+            {[
+              { type: "HALF_ADDER",        label: "Half Adder" },
+              { type: "FULL_ADDER",        label: "Full Adder" },
+              { type: "ADD4",              label: "4 bit Adder" },
+              { type: "CLADD4",            label: "Carry LA 4" },
+            ].map(({ type, label }) => (
+              <button key={type} className="gate-btn gate-btn--ic" onClick={() => addGate(type)}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="palette-section">
+          <div className="palette-section-title">Subtractors</div>
+          <div className="gate-palette">
+            {[
+              { type: "HALF_SUBTRACTOR",   label: "Half Subtractor" },
+              { type: "FULL_SUBTRACTOR",   label: "Full Subtractor" },
             ].map(({ type, label }) => (
               <button key={type} className="gate-btn gate-btn--ic" onClick={() => addGate(type)}>
                 {label}
