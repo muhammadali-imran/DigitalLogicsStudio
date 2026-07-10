@@ -252,6 +252,7 @@ function InstructionLaboratoryPage() {
                                 <option value="All">All Categories</option>
                                 <option value="Arithmetic">Arithmetic</option>
                                 <option value="Logical / Shift">Logical / Shift</option>
+                                <option value="Control Transfer">Control Transfer</option> 
                             </select>
                         </div>
                         <div style={{ width: "160px" }}>
@@ -264,11 +265,21 @@ function InstructionLaboratoryPage() {
                                 <option value="All">All Levels</option>
                                 <option value="Beginner">Beginner</option>
                                 <option value="Intermediate">Intermediate</option>
+                                <option value="Advanced">Advanced</option>
                             </select>
                         </div>
                     </div>
+                    <div
+                        style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "12px",
+                            maxHeight: "65vh",       // Box screen ke 65% se bada nahi hoga
+                            overflowY: "auto",       // Commands zyada hone par khud scrollbar aa jayega
+                            paddingRight: "8px"      // Scrollbar text ke upar na chade
+                        }}
+                    >
 
-                    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                         <h3 style={{ margin: "5px 0", fontSize: "16px", color: "#9ca3af" }}>Search Results ({filteredInstructions.length})</h3>
                         {filteredInstructions.map((item) => {
                             const isSelected = selectedInstruction?.id === item.id;
