@@ -265,12 +265,16 @@ function InstructionLaboratoryPage() {
     const runSimulation = () => {
         const valAX = parseInt(regAX, 10) || 0;
         const valBX = parseInt(regBX, 10) || 0;
+        const valCX = parseInt(regCX, 10) || 0;
+        const valDX = parseInt(regDX, 10) || 0;
         let finalAX = valAX;
         let finalBX = valBX;
+        let finalCX = valCX;
+        let finalDX = valDX;
         let explanation = "";
-        
+
         // Flags update behavior tracking variables
-        let modifyFlags = true; 
+        let modifyFlags = true;
         let forceCFZero = false;
 
         if (selectedInstruction.id === "sub") {
@@ -291,14 +295,14 @@ function InstructionLaboratoryPage() {
             const cmpResult = valAX - valBX; // Calculation temporary hoti hai
             explanation = `Executed: CMP AX, BX. Subtracted BX (${valBX}) from AX (${valAX}) internally. Flags updated based on result (${cmpResult}), but AX value remains untouched as ${valAX}.`;
             // Flags update honge based on subtraction result, temporary value update karenge parameters ke liye
-            finalAX = cmpResult; 
+            finalAX = cmpResult;
         } else if (selectedInstruction.id === "push") {
             explanation = `Executed: PUSH AX. Decremented the Stack Pointer (SP) by 2 and pushed the value of AX (${valAX}) onto the top of the stack storage.`;
             modifyFlags = false; // Stack push leaves flags unaffected
         } else if (selectedInstruction.id === "pop") {
             finalAX = 42; // Stack se generic mock value pop karwa di
             explanation = `Executed: POP AX. Pulled the top value from the Stack Frame (simulated as 42) into AX, then incremented the Stack Pointer (SP) by 2.`;
-            modifyFlags = false; 
+            modifyFlags = false;
         } else if (selectedInstruction.id === "and") {
             finalAX = valAX & valBX;
             explanation = `Executed: AND AX, BX. Performed bitwise logical AND. Only bits that are 1 in both registers remain 1. New value is ${finalAX}.`;
@@ -345,16 +349,15 @@ function InstructionLaboratoryPage() {
             flags = {
                 ZF: finalAX === 0 ? "1 (Active)" : "0 (Clear)",
                 SF: finalAX < 0 ? "1 (Negative)" : "0 (Positive)",
-                CF: forceCFZero 
-                    ? "0 (Cleared)" 
+                CF: forceCFZero
+                    ? "0 (Cleared)"
                     : (selectedInstruction.id === "inc" ? "0 (Unaffected)" : (finalAX < 0 || finalAX > 255 ? "1 (Triggered)" : "0 (Normal)"))
             };
         }
 
         // CMP ke case mein graphical UI pe AX ki real value revert karne ke liye check
         const displayAX = selectedInstruction.id === "cmp" ? valAX : finalAX;
-
-        setSimOutput({ finalAX: displayAX, finalBX, flags, explanation });
+       setSimOutput({ finalAX: displayAX, finalBX, finalCX, finalDX, flags, explanation });
     };
 
     const currentCompare = COMPARISON_DATA[activeCompareTab];
@@ -422,7 +425,7 @@ function InstructionLaboratoryPage() {
                                 <option value="Arithmetic">Arithmetic</option>
                                 <option value="Data Transfer">Data Transfer</option>
                                 <option value="Logical / Shift">Logical / Shift</option>
-                                <option value="Control Transfer">Control Transfer</option> 
+                                <option value="Control Transfer">Control Transfer</option>
                             </select>
                         </div>
                         <div style={{ width: "160px" }}>
@@ -525,17 +528,24 @@ function InstructionLaboratoryPage() {
                                         <h2 style={{ margin: 0, fontSize: "22px", color: "#10b981" }}>⚡ Live Sandbox: {selectedInstruction.instruction}</h2>
                                         <button onClick={() => { setShowDemo(false); setSimOutput(null); }} style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#9ca3af", padding: "4px 10px", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}>← Back</button>
                                     </div>
-                                    <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
-                                        <div style={{ flex: 1 }}>
+                                    {/* UPDATED REGISTER INPUTS: DISPLAYING ALL 4 COAL REGISTERS */}
+                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "10px", marginBottom: "20px" }}>
+                                        <div>
                                             <label style={{ display: "block", fontSize: "12px", marginBottom: "5px", color: "#9ca3af" }}>Register AX</label>
                                             <input type="number" value={regAX} onChange={(e) => setRegAX(e.target.value)} style={{ width: "100%", padding: "10px", background: "#111827", border: "1px solid #1e293b", color: "#fff", borderRadius: "6px", boxSizing: "border-box" }} />
                                         </div>
-                                        {selectedInstruction.id !== "inc" && (
-                                            <div style={{ flex: 1 }}>
-                                                <label style={{ display: "block", fontSize: "12px", marginBottom: "5px", color: "#9ca3af" }}>Register BX</label>
-                                                <input type="number" value={regBX} onChange={(e) => setRegBX(e.target.value)} style={{ width: "100%", padding: "10px", background: "#111827", border: "1px solid #1e293b", color: "#fff", borderRadius: "6px", boxSizing: "border-box" }} />
-                                            </div>
-                                        )}
+                                        <div>
+                                            <label style={{ display: "block", fontSize: "12px", marginBottom: "5px", color: "#9ca3af" }}>Register BX</label>
+                                            <input type="number" value={regBX} onChange={(e) => setRegBX(e.target.value)} style={{ width: "100%", padding: "10px", background: "#111827", border: "1px solid #1e293b", color: "#fff", borderRadius: "6px", boxSizing: "border-box" }} />
+                                        </div>
+                                        <div>
+                                            <label style={{ display: "block", fontSize: "12px", marginBottom: "5px", color: "#9ca3af" }}>Register CX</label>
+                                            <input type="number" value={regCX} onChange={(e) => setRegCX(e.target.value)} style={{ width: "100%", padding: "10px", background: "#111827", border: "1px solid #1e293b", color: "#fff", borderRadius: "6px", boxSizing: "border-box" }} />
+                                        </div>
+                                        <div>
+                                            <label style={{ display: "block", fontSize: "12px", marginBottom: "5px", color: "#9ca3af" }}>Register DX</label>
+                                            <input type="number" value={regDX} onChange={(e) => setRegDX(e.target.value)} style={{ width: "100%", padding: "10px", background: "#111827", border: "1px solid #1e293b", color: "#fff", borderRadius: "6px", boxSizing: "border-box" }} />
+                                        </div>
                                     </div>
                                     <div style={{ background: "#030712", padding: "12px", borderRadius: "6px", fontFamily: "monospace", color: "#60a5fa", marginBottom: "20px", border: "1px solid #1e293b" }}>
                                         {selectedInstruction.id === "inc" ? `INC AX` : `${selectedInstruction.instruction} AX, BX`}
@@ -546,11 +556,11 @@ function InstructionLaboratoryPage() {
                                         <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                                             <div style={{ background: "rgba(255,255,255,0.02)", padding: "12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
                                                 <h4 style={{ margin: "0 0 8px 0", fontSize: "12px", color: "#9ca3af", textTransform: "uppercase" }}>Register Changes</h4>
-                                                <div style={{ fontSize: "14px", fontFamily: "monospace" }}>
+                                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", fontSize: "14px", fontFamily: "monospace" }}>
                                                     <div>AX: <span style={{ color: "#34d399", fontWeight: "bold" }}>{simOutput.finalAX}</span></div>
-                                                    {selectedInstruction.id !== "inc" && (
-                                                        <div>BX: <span style={{ color: "#9ca3af" }}>{simOutput.finalBX}</span></div>
-                                                    )}
+                                                    <div>BX: <span style={{ color: "#cbd5e1" }}>{simOutput.finalBX}</span></div>
+                                                    <div>CX: <span style={{ color: "#cbd5e1" }}>{simOutput.finalCX}</span></div>
+                                                    <div>DX: <span style={{ color: "#cbd5e1" }}>{simOutput.finalDX}</span></div>
                                                 </div>
                                             </div>
                                             <div style={{ background: "rgba(255,255,255,0.02)", padding: "12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
