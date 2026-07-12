@@ -1,8 +1,8 @@
 const LOCAL_API_URL = "http://localhost:5000/api";
+const SAME_ORIGIN_API_URL = "/api";
 const PRODUCTION_API_URL =
   "https://digital-logics-studio-backend.vercel.app/api";
 // The -three deployment is not ours and is stale (missing the newer auth routes).
-// Old builds/envs had it baked in, so rewrite it to the real backend.
 const LEGACY_PRODUCTION_API_URL =
   "https://digital-logics-studio-backend-three.vercel.app/api";
 
@@ -10,16 +10,42 @@ function normalizeUrl(url) {
   return url.trim().replace(/\/+$/, "");
 }
 
+function shouldUseSameOriginProxy(url) {
+  const normalized = normalizeUrl(url);
+  return (
+    normalized === SAME_ORIGIN_API_URL ||
+    normalized === normalizeUrl(PRODUCTION_API_URL) ||
+    normalized === normalizeUrl(LEGACY_PRODUCTION_API_URL)
+  );
+}
+
+// A usable API base must carry a path — ours live under /api. A bare origin
+// (e.g. REACT_APP_API_URL accidentally set to the frontend site URL via
+// swapped Vercel env vars) sends requests to static hosting, which answers
+// 405 on POST.
+function isUsableApiBase(url) {
+  if (url.startsWith("/")) return true; // same-origin path like /api
+  try {
+    return new URL(url).pathname !== "/";
+  } catch {
+    return false;
+  }
+}
+
 export function resolveApiBaseUrl() {
   const configured = process.env.REACT_APP_API_URL?.trim();
   if (configured) {
-    const normalized = normalizeUrl(configured);
-    if (normalized === normalizeUrl(LEGACY_PRODUCTION_API_URL)) {
-      return normalizeUrl(PRODUCTION_API_URL);
+    if (shouldUseSameOriginProxy(configured)) {
+      return SAME_ORIGIN_API_URL;
     }
-    return normalized;
+    const normalized = normalizeUrl(configured);
+    if (isUsableApiBase(normalized)) {
+      return normalized;
+    }
   }
-  return process.env.NODE_ENV === "production" ? normalizeUrl(PRODUCTION_API_URL) : LOCAL_API_URL;
+  return process.env.NODE_ENV === "production"
+    ? SAME_ORIGIN_API_URL
+    : LOCAL_API_URL;
 }
 
 export function resolveAiBaseUrl() {
