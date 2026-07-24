@@ -206,37 +206,7 @@ const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 // ScrollToTop and route synchronization
 const AppContent = () => {
   const location = useLocation();
-  const typesetTimerRef = useRef(null);
-
-  useEffect(() => {
-    const root = document.getElementById("root");
-    const typeset = () => {
-      if (!window.MathJax?.typesetPromise) return;
-      window.MathJax.typesetPromise([root || document.body]).catch(() => {});
-    };
-
-    const scheduleTypeset = () => {
-      window.clearTimeout(typesetTimerRef.current);
-      typesetTimerRef.current = window.setTimeout(typeset, 80);
-    };
-
-    scheduleTypeset();
-
-    const observer = root ? new MutationObserver(scheduleTypeset) : null;
-    observer?.observe(root, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-    });
-
-    const stopObserver = window.setTimeout(() => observer?.disconnect(), 1800);
-
-    return () => {
-      observer?.disconnect();
-      window.clearTimeout(stopObserver);
-      window.clearTimeout(typesetTimerRef.current);
-    };
-  }, [location]);
+  
 
   return (
     <>
