@@ -84,7 +84,7 @@ const booleanPages = [
     relatedLinks: [
       { to: "/boolean/identities", label: "Boolean identities" },
       { to: "/boolean/laws", label: "Boolean laws" },
-      { to: "/standard-forms", label: "SOP and POS forms" },
+      { to: "/boolean/standard-forms", label: "SOP and POS forms" },
       { to: "/problems/boolean-algebra", label: "Boolean algebra problems" },
     ],
   },
@@ -131,9 +131,8 @@ const booleanPages = [
     keywords: ["minterms", "canonical sop", "sum of products boolean algebra"],
     relatedLinks: [
       { to: "/boolean/maxterms", label: "Maxterms explained" },
-      { to: "/standard-forms", label: "Standard forms" },
+      { to: "/boolean/standard-forms", label: "Standard forms" },
       { to: "/kmapgenerator", label: "Karnaugh map solver" },
-      { to: "/problems/k-map", label: "K-map problems" },
     ],
   },
   {
@@ -154,10 +153,9 @@ const booleanPages = [
       "standard forms boolean algebra",
     ],
     relatedLinks: [
-      { to: "/standard-forms", label: "Standard forms tutorial" },
+      { to: "/boolean/standard-forms", label: "Standard forms tutorial" },
       { to: "/kmapgenerator", label: "K-map simplifier online" },
       { to: "/boolforge", label: "Boolean algebra calculator" },
-      { to: "/problems/boolean-algebra", label: "Boolean algebra practice" },
     ],
   },
   {
@@ -166,6 +164,13 @@ const booleanPages = [
     description:
       "Review significant digits, MSD, and LSD concepts used across number representation and digital systems problems.",
     keywords: ["significant digits digital logic"],
+  },
+  {
+    path: "/boolean/standard-form",
+    label: "Standard Forms",
+    description:
+      "Learn standard forms in Boolean algebra, convert between SOP and POS, and verify logic expressions with truth-table support.",
+    keywords: ["sop and pos", "standard forms boolean algebra"],
   },
 ];
 
@@ -575,7 +580,7 @@ export const SEO_ROUTES = [
     relatedLinks: [
       { to: "/boolean/overview", label: "Boolean algebra tutorial" },
       { to: "/kmapgenerator", label: "K-map solver" },
-      { to: "/standard-forms", label: "Standard forms guide" },
+      { to: "/boolean/standard-forms", label: "Standard forms guide" },
     ],
   }),
   buildRoute({
@@ -594,12 +599,12 @@ export const SEO_ROUTES = [
     relatedLinks: [
       { to: "/boolean/minterms", label: "Minterms tutorial" },
       { to: "/boolean/maxterms", label: "Maxterms tutorial" },
-      { to: "/standard-forms", label: "SOP and POS guide" },
+      { to: "/boolean/standard-forms", label: "SOP and POS guide" },
       { to: "/problems/k-map", label: "K-map practice problems" },
     ],
   }),
   buildRoute({
-    path: "/standard-forms",
+    path: "/boolean/standard-forms",
     title: "Standard Forms in Boolean Algebra | SOP and POS Guide",
     description:
       "Learn standard forms in Boolean algebra, convert between SOP and POS, and verify logic expressions with truth-table support.",
@@ -640,9 +645,6 @@ export const SEO_ROUTES = [
     section: "Practice",
     category: "Problems",
     relatedLinks: [
-      { to: "/problems/boolean-algebra", label: "Boolean algebra problems" },
-      { to: "/problems/k-map", label: "K-map problems" },
-      { to: "/problems/number-systems", label: "Number system problems" },
       { to: "/problems?course=coal", label: "COAL practice problems" },
     ],
     faq: [
@@ -662,63 +664,6 @@ export const SEO_ROUTES = [
           "Yes. The Problems page has a course toggle — switch to the COAL tab to practice number representation, x86 assembly, ISA & registers, cache & memory, and I/O & interrupt questions without leaving the page.",
       },
     ],
-  }),
-  buildRoute({
-    path: "/problems/boolean-algebra",
-    title: "Boolean Algebra Problems and Practice Questions | Boolforge",
-    description:
-      "Practice Boolean algebra problems covering identities, laws, consensus, minterms, maxterms, SOP, POS, and simplification.",
-    keywords: ["boolean algebra problems", "boolean algebra practice questions"],
-    type: "FAQPage",
-    section: "Practice",
-    category: "Boolean Algebra",
-    faq: [
-      {
-        question: "What do Boolean algebra practice questions usually cover?",
-        answer:
-          "They commonly cover identities, simplification, canonical forms, De Morgan transformations, consensus theorem, and expression conversion.",
-      },
-    ],
-  }),
-  buildRoute({
-    path: "/problems/k-map",
-    title: "K-Map Problems and Karnaugh Map Practice | Boolforge",
-    description:
-      "Practice Karnaugh map problems for SOP and POS minimization, grouping strategy, and Boolean simplification.",
-    keywords: ["k map problems", "karnaugh map practice"],
-    type: "FAQPage",
-    section: "Practice",
-    category: "K-Maps",
-  }),
-  buildRoute({
-    path: "/problems/number-systems",
-    title: "Number System Problems and Conversion Practice | Boolforge",
-    description:
-      "Solve number system problems for binary, octal, decimal, hexadecimal, complements, and signed representation.",
-    keywords: ["number system problems", "binary conversion practice"],
-    type: "FAQPage",
-    section: "Practice",
-    category: "Number Systems",
-  }),
-  buildRoute({
-    path: "/problems/sequential-circuits",
-    title: "Sequential Circuit Problems and FSM Practice | Boolforge",
-    description:
-      "Practice sequential circuit problems covering latches, flip-flops, state tables, state diagrams, and sequential design.",
-    keywords: ["sequential circuit problems", "flip flop practice questions"],
-    type: "FAQPage",
-    section: "Practice",
-    category: "Sequential Circuits",
-  }),
-  buildRoute({
-    path: "/problems/flip-flops",
-    title: "Flip-Flop Problems and Truth Table Practice | Boolforge",
-    description:
-      "Review flip-flop truth tables and practice questions for SR, JK, D, and T flip-flops with exam-focused preparation.",
-    keywords: ["flip flop problems", "flip flop truth table practice"],
-    type: "FAQPage",
-    section: "Practice",
-    category: "Sequential Circuits",
   }),
   buildRoute({
     path: "/book",
